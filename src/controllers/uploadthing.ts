@@ -11,7 +11,7 @@ export const uploadImages = async (req: Request, res: Response) => {
     }
 
     try {
-        const fileObjects = req.files.map(file => 
+        const fileObjects = (req.files as Express.Multer.File[]).map(file => 
             new File([file.buffer], file.originalname, { type: file.mimetype })
         );
 
@@ -26,8 +26,8 @@ export const uploadImages = async (req: Request, res: Response) => {
             message: 'Files uploaded successfully',
             files: uploadedFiles
         });
-    } catch (error) {
+    } catch (error:any) {
         console.error('Upload error:', error);
-        res.status(500).json({ error: 'Upload failed' });
+        res.status(500).json({ error: 'Upload failed', message: error.message });
     }
 }
