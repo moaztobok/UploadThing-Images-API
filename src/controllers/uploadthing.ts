@@ -42,3 +42,33 @@ export const uploadImages = async (req:Request, res:Response) => {
         res.status(500).json({ error: 'Upload failed', message: error.message });
     }
 }
+export const deleteImage = async (req: Request, res: Response) => {
+    const imageId = req.params.id;
+
+    try {
+        // Find the image in the database
+        const image = await Image.findById(imageId);
+
+        if (!image) {
+            return res.status(404).json({ error: "Image not found" });
+        }
+
+        // Extract the file key from the URL
+        const fileKey = image.imageUrl.split('/').pop();
+
+        if (!fileKey) {
+            return res.status(400).json({ error: "Invalid image URL" });
+        }
+
+        // Delete the file from UploadThing
+        await utapi.deleteFiles(fileKey);
+
+        // Delete the image from the database
+        await Image.findByIdAndDelete(imageId);
+
+        res.json({ message: "Image deleted successfully" });
+    } catch (error: any) {
+        console.error('Error deleting image:', error);
+        res.status(500).json({ error: 'Failed to delete image', message: error.message });
+    }
+};
