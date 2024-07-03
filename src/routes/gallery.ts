@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getGallery } from "../controllers/gallery";
+import { getImages } from "../controllers/gallery";
 const router = Router();
 
-router.get('/',getGallery);
+router.get('/', getImages);
 export default router

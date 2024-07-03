@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express'
+import { connectToDatabase } from './config/db';
+connectToDatabase();
+
 import uploadThingRouter from './routes/uploadthing'
 const app = express();
 const PORT = 3000;
