@@ -6,7 +6,7 @@ import cors from 'cors'
 
 export const app = express();
 export const run = () => {
-
+    app.use(cors());
     dotenv.config();
     connectToDatabase();
 };
