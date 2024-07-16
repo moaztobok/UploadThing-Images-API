@@ -2,7 +2,7 @@ import { run, app } from './config/app'
 
 run();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 import galleryRouter from './routes/gallery';
 
