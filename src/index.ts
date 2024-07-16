@@ -1,14 +1,14 @@
-import { run, app } from './config/app'
+import { run } from './config/app'
+import express from 'express'
+export const app = express();
+import galleryRouter from './routes/gallery';
 
 run();
 
 const PORT = process.env.PORT;
 
-import galleryRouter from './routes/gallery';
-app.use('/', (req, res) => {
-    res.send('Hello World')
-})
-app.use('/api/gallery', galleryRouter)
+
+app.use('/api/gallery/', galleryRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running at ${PORT}`)
