@@ -4,12 +4,10 @@ import express from 'express'
 import { connectToDatabase } from './config/db';
 connectToDatabase();
 
-import uploadThingRouter from './routes/uploadthing'
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 import galleryRouter from './routes/gallery';
 app.use('/api/gallery', galleryRouter)
-app.use('/api/uploadthing',uploadThingRouter)
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`)
 });
