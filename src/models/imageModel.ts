@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 // Define the interface for your document
-interface IImage extends Document {
+export interface ImageDocument extends Document {
   imageUrl: string;
   imageType: 'artwork' | 'photograph';
   title: string;
@@ -21,4 +21,4 @@ const ImageSchema: Schema = new Schema({
 });
 
 // Create and export the model
-export default mongoose.model<IImage>('Image', ImageSchema);
+export default mongoose.model<ImageDocument>('Image', ImageSchema);
