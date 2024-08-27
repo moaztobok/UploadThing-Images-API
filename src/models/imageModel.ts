@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-// Define the interface for your document
 export interface ImageDocument extends Document {
   imageUrl: string;
   imageType: 'artwork' | 'photograph';
@@ -10,7 +9,6 @@ export interface ImageDocument extends Document {
   userId: string;
 }
 
-// Create the schema
 const ImageSchema: Schema = new Schema({
   imageUrl: { type: String, required: true },
   imageType: { type: String, enum: ['artwork', 'photograph'], required: true },
@@ -20,5 +18,4 @@ const ImageSchema: Schema = new Schema({
   userId: { type: String, required: true }
 });
 
-// Create and export the model
 export default mongoose.model<ImageDocument>('Image', ImageSchema);
