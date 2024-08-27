@@ -11,18 +11,17 @@ interface GetImagesQuery {
 
 export const getImages = async (req: Request, res: Response) => {
     try {
-        const { imageType, page = 1, limit = 10, sort = { createdAt: -1 } } =
-            req.query as GetImagesQuery;
+        const { imageType, page, limit, sort } = req.query as GetImagesQuery;
+
 
         const query: { imageType?: string } = {};
         if (imageType) {
             query.imageType = imageType;
         }
-
-        const images = await Image.find(query)
+        const images = await Image.find(req.query as GetImagesQuery)
             .sort(sort)
-            .skip((page - 1) * limit)
-            .limit(limit)
+            .skip(page ? (limit ? (page - 1) * limit : 0) : 0)
+            .limit(limit ? limit : 0)
             .exec();
 
         res.json(images);
