@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { UTApi } from 'uploadthing/server';
 import blogModal from '../models/blogModal';
-
+import moment from 'moment';
 export const utapi = new UTApi({
     apiKey: process.env.UPLOADTHING_SECRET
 });
@@ -20,11 +20,16 @@ export const createBlog = async (req: Request, res: Response) => {
         console.log("Uploaded files:", uploadedFiles);
         const imageUrls = uploadedFiles.map(file => file.data?.url);
         console.log("Image URLs:", imageUrls);
+        const formattedDate = moment(req.body.lastModified || new Date()).format('dddd, DD MMM YYYY');
         const newBlog = new blogModal({
             title: req.body.title,
             imageUrls: imageUrls,
+            content: req.body.content,
+            tags: req.body.tags,
+            category: req.body.category,
+            author: req.body.author,
             description: req.body.description,
-            uploadDate: new Date(),
+            lastModified: formattedDate,
         });
         const savedBlog = await newBlog.save();
 
