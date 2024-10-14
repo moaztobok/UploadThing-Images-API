@@ -5,6 +5,7 @@ export interface ImageDocument extends Document {
   imageType: 'artwork' | 'photograph';
   title: string;
   description?: string;
+  orientation: 'landscape' | 'portrait' | 'square';
   uploadDate: Date;
   userId: string;
 }
@@ -15,6 +16,7 @@ const ImageSchema: Schema = new Schema({
   title: { type: String, required: true },
   description: { type: String },
   uploadDate: { type: Date, default: Date.now },
+  orientation: { type: String, enum: ['landscape', 'portrait', 'square'], required: true },
   userId: { type: String, required: true }
 });
 

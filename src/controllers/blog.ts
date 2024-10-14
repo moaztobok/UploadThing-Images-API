@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import { UTApi } from 'uploadthing/server';
 import blogModal from '../models/blogModal';
+import sanitizeHtml from 'sanitize-html';
+
 import moment from 'moment';
+import sharp from 'sharp';
 export const utapi = new UTApi({
     apiKey: process.env.UPLOADTHING_SECRET
 });
@@ -12,31 +15,76 @@ export const createBlog = async (req: Request, res: Response) => {
     }
 
     try {
-        const fileObjects = (req.files as Express.Multer.File[]).map(file =>
-            new File([file.buffer], file.originalname, { type: file.mimetype })
-        );
+        const fileObjects = await Promise.all((req.files as Express.Multer.File[]).map(async file => {
+            const metadata = await sharp(file.buffer).metadata();
+            let orientation: 'landscape' | 'portrait' | 'square';
+            if (metadata.width && metadata.height) {
+                if (metadata.width > metadata.height) {
+                    orientation = 'landscape';
+                } else if (metadata.width < metadata.height) {
+                    orientation = 'portrait';
+                } else {
+                    orientation = 'square';
+                }
+            } else {
+                orientation = 'landscape'; // Default to landscape if dimensions can't be determined
+            }
+            return {
+                file: new File([file.buffer], file.originalname, { type: file.mimetype }),
+                orientation
+            };
+        }));
 
-        const uploadedFiles = await utapi.uploadFiles(fileObjects);
+        const uploadedFiles = await utapi.uploadFiles(fileObjects.map(fo => fo.file));
         console.log("Uploaded files:", uploadedFiles);
-        const imageUrls = uploadedFiles.map(file => file.data?.url);
-        console.log("Image URLs:", imageUrls);
+
+        const images = uploadedFiles.map((file, index) => ({
+            url: file.data?.url,
+            orientation: fileObjects[index].orientation
+        }));
+        console.log("Images with orientation:", images);
+
+        const sanitizedContent = sanitizeHtml(req.body.content, {
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+            allowedAttributes: {
+                'a': ['href', 'name', 'target'],
+                'img': ['src', 'alt'],
+                'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
+                'div': ['class', 'style'],
+                'span': ['class', 'style'],
+                'p': ['class', 'style'],
+                'h1': ['class', 'style'],
+                'h2': ['class', 'style'],
+                'h3': ['class', 'style'],
+                'h4': ['class', 'style'],
+                'h5': ['class', 'style'],
+                'h6': ['class', 'style'],
+                'ul': ['class', 'style'],
+                'ol': ['class', 'style'],
+                'li': ['class', 'style'],
+            },
+        });
+
         const formattedDate = moment(req.body.lastModified || new Date()).format('dddd, DD MMM YYYY');
+
         const newBlog = new blogModal({
             title: req.body.title,
-            imageUrls: imageUrls,
-            content: req.body.content,
+            images: images,
+            content: sanitizedContent,
             tags: req.body.tags,
             category: req.body.category,
             author: req.body.author,
             description: req.body.description,
             lastModified: formattedDate,
         });
+
         const savedBlog = await newBlog.save();
 
         console.log("Blog created:", savedBlog);
 
         res.json({
-            message: 'blog uploaded successfully',
+            message: 'Blog uploaded successfully',
+            blog: savedBlog
         });
     } catch (error: any) {
         console.error('Upload error:', error);
