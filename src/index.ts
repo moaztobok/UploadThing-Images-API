@@ -13,7 +13,7 @@ const PORT = process.env.PORT;
 
 app.use('/api/gallery/', galleryRouter)
 app.use('/api/blog', blogRouter)
-app.use('/api/login', loginRouter)
+// app.use('/api/login', loginRouter)
 app.listen(PORT, () => {
     console.log(`Server is running at ${PORT}`)
 });
